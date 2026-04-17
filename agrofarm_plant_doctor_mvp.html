@@ -1,0 +1,354 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .app { max-width: 420px; margin: 0 auto; padding: 1rem 0 2rem; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .logo-circle { width: 36px; height: 36px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; }
+  .logo-leaf { width: 18px; height: 18px; fill: white; }
+  .app-name { font-size: 17px; font-weight: 500; color: var(--color-text-primary); }
+  .app-sub { font-size: 12px; color: var(--color-text-secondary); }
+  .badge-online { font-size: 11px; background: #EAF3DE; color: #3B6D11; padding: 3px 8px; border-radius: 99px; margin-left: auto; }
+
+  /* Home */
+  .greeting { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .greeting-sub { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.5rem; }
+  .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.25rem; }
+  .action-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem; cursor: pointer; transition: border-color 0.15s; }
+  .action-card:hover { border-color: var(--color-border-primary); }
+  .action-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; font-size: 18px; }
+  .action-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; }
+  .action-desc { font-size: 11px; color: var(--color-text-secondary); line-height: 1.5; }
+  .alert-banner { background: #FAEEDA; border: 0.5px solid #FAC775; border-radius: var(--border-radius-md); padding: 10px 12px; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 1.25rem; }
+  .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .alert-text { font-size: 12px; color: #633806; line-height: 1.5; }
+  .alert-text strong { font-weight: 500; }
+  .section-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .quick-crop { display: flex; gap: 8px; flex-wrap: wrap; }
+  .crop-pill { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: 99px; padding: 6px 14px; font-size: 12px; color: var(--color-text-secondary); cursor: pointer; }
+  .crop-pill:hover { border-color: #1D9E75; color: #0F6E56; }
+
+  /* Scan screen */
+  .back-btn { background: none; border: none; font-size: 13px; color: var(--color-text-secondary); cursor: pointer; display: flex; align-items: center; gap: 6px; margin-bottom: 1rem; padding: 0; }
+  .screen-title { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
+  .screen-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 1.25rem; }
+  .camera-box { background: var(--color-background-secondary); border: 1.5px dashed var(--color-border-secondary); border-radius: var(--border-radius-lg); height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: background 0.15s; margin-bottom: 1rem; }
+  .camera-box:hover { background: var(--color-background-tertiary); }
+  .camera-ico { font-size: 36px; }
+  .camera-label { font-size: 13px; color: var(--color-text-secondary); }
+  .or-divider { text-align: center; font-size: 12px; color: var(--color-text-tertiary); margin: 0.75rem 0; position: relative; }
+  .or-divider::before, .or-divider::after { content: ''; position: absolute; top: 50%; width: 42%; height: 0.5px; background: var(--color-border-tertiary); }
+  .or-divider::before { left: 0; }
+  .or-divider::after { right: 0; }
+  .crop-select-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+  .crop-btn { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 8px 4px; font-size: 12px; color: var(--color-text-primary); cursor: pointer; text-align: center; transition: all 0.15s; }
+  .crop-btn:hover, .crop-btn.selected { border-color: #1D9E75; background: #E1F5EE; color: #0F6E56; }
+  .symptom-label { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+  .symptom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 1.25rem; }
+  .symptom-chk { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 8px 10px; font-size: 12px; color: var(--color-text-secondary); cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .symptom-chk.checked { border-color: #1D9E75; color: #0F6E56; background: #E1F5EE; }
+  .chk-box { width: 14px; height: 14px; border-radius: 3px; border: 1.5px solid var(--color-border-secondary); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .symptom-chk.checked .chk-box { background: #1D9E75; border-color: #1D9E75; color: white; font-size: 10px; }
+  .diagnose-btn { width: 100%; background: #1D9E75; color: white; border: none; border-radius: var(--border-radius-md); padding: 12px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+  .diagnose-btn:hover { background: #0F6E56; }
+  .diagnose-btn:disabled { background: #9FE1CB; cursor: not-allowed; }
+
+  /* Loading */
+  .loading-screen { text-align: center; padding: 3rem 1rem; }
+  .spinner { width: 48px; height: 48px; border: 3px solid #E1F5EE; border-top-color: #1D9E75; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 15px; color: var(--color-text-secondary); }
+  .loading-sub { font-size: 12px; color: var(--color-text-tertiary); margin-top: 6px; }
+
+  /* Results */
+  .disease-card { background: var(--color-background-primary); border: 0.5px solid #F0997B; border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .disease-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .disease-name { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+  .confidence-badge { font-size: 11px; background: #FAECE7; color: #993C1D; padding: 3px 8px; border-radius: 99px; }
+  .confidence-badge.high { background: #EAF3DE; color: #3B6D11; }
+  .disease-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 10px; }
+  .severity-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .severity-label { font-size: 12px; color: var(--color-text-secondary); }
+  .severity-dots { display: flex; gap: 3px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-border-tertiary); }
+  .dot.filled { background: #D85A30; }
+  .dot.filled.med { background: #BA7517; }
+
+  .treatment-section { margin-bottom: 1rem; }
+  .treatment-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .treatment-step { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 8px; }
+  .step-num { width: 20px; height: 20px; border-radius: 50%; background: #1D9E75; color: white; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-text { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; }
+  .step-text strong { color: var(--color-text-primary); font-weight: 500; }
+
+  .shop-card { background: #E1F5EE; border: 0.5px solid #9FE1CB; border-radius: var(--border-radius-md); padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; cursor: pointer; }
+  .shop-name { font-size: 13px; font-weight: 500; color: #085041; }
+  .shop-dist { font-size: 11px; color: #0F6E56; }
+  .shop-nav { font-size: 11px; color: #1D9E75; }
+
+  .voice-btn { width: 100%; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 10px; font-size: 13px; color: var(--color-text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
+  .voice-btn:hover { background: var(--color-background-tertiary); }
+  .expert-btn { width: 100%; background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 10px; font-size: 13px; color: var(--color-text-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+  /* Bottom nav */
+  .bottom-nav { display: flex; border-top: 0.5px solid var(--color-border-tertiary); margin-top: 1.5rem; padding-top: 0.75rem; }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px; }
+  .nav-ico { font-size: 18px; }
+  .nav-label { font-size: 10px; color: var(--color-text-tertiary); }
+  .nav-item.active .nav-label { color: #1D9E75; }
+</style>
+
+<h2 class="sr-only">AgroDoc — Digital Plant Doctor MVP interface for rural farmers. Includes home dashboard, crop disease scanner, and treatment recommendations.</h2>
+
+<div class="app">
+
+  <!-- HOME SCREEN -->
+  <div class="screen active" id="screen-home">
+    <div class="header">
+      <div class="logo-circle">
+        <svg class="logo-leaf" viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2-13 6C6 11.5 5.5 15 5.5 15c-.71.17-1.26.5-1.69.91"/></svg>
+      </div>
+      <div>
+        <div class="app-name">AgroDoc</div>
+        <div class="app-sub">Digital Plant Doctor</div>
+      </div>
+      <div class="badge-online">● Online</div>
+    </div>
+
+    <div class="greeting">Good morning, Emeka 👋</div>
+    <div class="greeting-sub">How are your crops doing today?</div>
+
+    <div class="alert-banner">
+      <div class="alert-icon">⚠️</div>
+      <div class="alert-text"><strong>Weather alert:</strong> Heavy rain expected in 2 days. Avoid spraying pesticides today — they may wash off before taking effect.</div>
+    </div>
+
+    <div class="action-grid">
+      <div class="action-card" onclick="showScreen('screen-scan')">
+        <div class="action-icon" style="background:#E1F5EE;">🔬</div>
+        <div class="action-title">Scan a leaf</div>
+        <div class="action-desc">Identify disease or pest damage</div>
+      </div>
+      <div class="action-card" onclick="showScreen('screen-soil')">
+        <div class="action-icon" style="background:#FAEEDA;">🌱</div>
+        <div class="action-title">Soil health</div>
+        <div class="action-desc">Check NPK nutrient levels</div>
+      </div>
+      <div class="action-card" onclick="showScreen('screen-market')">
+        <div class="action-icon" style="background:#EAF3DE;">🛒</div>
+        <div class="action-title">Nearby shops</div>
+        <div class="action-desc">Find fertilisers & pesticides</div>
+      </div>
+      <div class="action-card" onclick="sendPrompt('Tell me more about the expert consultation (Tele-Agri) feature for AgroDoc')">
+        <div class="action-icon" style="background:#EEEDFE;">📞</div>
+        <div class="action-title">Call expert ↗</div>
+        <div class="action-desc">Video call an agronomist</div>
+      </div>
+    </div>
+
+    <div class="section-title">My crops</div>
+    <div class="quick-crop">
+      <div class="crop-pill">🌽 Maize</div>
+      <div class="crop-pill">🍅 Tomato</div>
+      <div class="crop-pill">🫘 Cassava</div>
+      <div class="crop-pill">+ Add crop</div>
+    </div>
+  </div>
+
+  <!-- SCAN SCREEN -->
+  <div class="screen" id="screen-scan">
+    <button class="back-btn" onclick="showScreen('screen-home')">← Back</button>
+    <div class="screen-title">Scan your crop</div>
+    <div class="screen-desc">Take a clear photo of the affected leaf, or describe the symptoms below.</div>
+
+    <div class="camera-box" onclick="simulateScan()">
+      <div class="camera-ico">📷</div>
+      <div class="camera-label">Tap to take a photo</div>
+    </div>
+
+    <div class="or-divider">or describe symptoms</div>
+
+    <div style="margin-bottom: 10px;">
+      <div class="section-title" style="margin-bottom:6px;">Select crop</div>
+      <div class="crop-select-row">
+        <div class="crop-btn selected" onclick="selectCrop(this)">🌽 Maize</div>
+        <div class="crop-btn" onclick="selectCrop(this)">🍅 Tomato</div>
+        <div class="crop-btn" onclick="selectCrop(this)">🫘 Cassava</div>
+      </div>
+    </div>
+
+    <div class="symptom-label">What do you see?</div>
+    <div class="symptom-grid">
+      <div class="symptom-chk" onclick="toggleSymptom(this)">
+        <div class="chk-box"></div>Yellow spots on leaves
+      </div>
+      <div class="symptom-chk" onclick="toggleSymptom(this)">
+        <div class="chk-box"></div>Brown/black lesions
+      </div>
+      <div class="symptom-chk" onclick="toggleSymptom(this)">
+        <div class="chk-box"></div>Wilting or drooping
+      </div>
+      <div class="symptom-chk" onclick="toggleSymptom(this)">
+        <div class="chk-box"></div>White powdery coating
+      </div>
+      <div class="symptom-chk" onclick="toggleSymptom(this)">
+        <div class="chk-box"></div>Holes in leaves
+      </div>
+      <div class="symptom-chk" onclick="toggleSymptom(this)">
+        <div class="chk-box"></div>Stunted growth
+      </div>
+    </div>
+
+    <button class="diagnose-btn" id="diagnoseBtn" onclick="runDiagnosis()">Run diagnosis</button>
+  </div>
+
+  <!-- LOADING -->
+  <div class="screen" id="screen-loading">
+    <div class="loading-screen">
+      <div class="spinner"></div>
+      <div class="loading-text">Analysing your crop...</div>
+      <div class="loading-sub">Matching against 50,000+ disease images</div>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div class="screen" id="screen-results">
+    <button class="back-btn" onclick="showScreen('screen-home')">← Home</button>
+    <div class="screen-title">Diagnosis result</div>
+    <div class="screen-desc" style="margin-bottom:1rem;">Maize · 3 symptoms matched · Just now</div>
+
+    <div class="disease-card">
+      <div class="disease-header">
+        <div class="disease-name">Northern Leaf Blight</div>
+        <div class="confidence-badge high">92% match</div>
+      </div>
+      <div class="disease-desc">A fungal disease caused by <em>Exserohilum turcicum</em>. Produces long, grey-green lesions on leaves that turn tan as they mature. Spreads rapidly in warm, wet weather.</div>
+      <div class="severity-row">
+        <div class="severity-label">Severity:</div>
+        <div class="severity-dots">
+          <div class="dot filled med"></div>
+          <div class="dot filled med"></div>
+          <div class="dot filled med"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+        <div class="severity-label">Moderate</div>
+      </div>
+    </div>
+
+    <div class="treatment-section">
+      <div class="treatment-title">💊 Treatment steps</div>
+      <div class="treatment-step">
+        <div class="step-num">1</div>
+        <div class="step-text">Apply <strong>Mancozeb 80% WP fungicide</strong> — mix 2.5g per litre of water. Spray on all leaf surfaces, including the underside.</div>
+      </div>
+      <div class="treatment-step">
+        <div class="step-num">2</div>
+        <div class="step-text">Remove and <strong>burn infected lower leaves</strong> to stop the spores from spreading to healthy plants.</div>
+      </div>
+      <div class="treatment-step">
+        <div class="step-num">3</div>
+        <div class="step-text"><strong>Repeat spray every 10–14 days</strong> until no new lesions appear. Do not spray when rain is expected within 6 hours.</div>
+      </div>
+      <div class="treatment-step">
+        <div class="step-num">4</div>
+        <div class="step-text">Improve spacing between plants to <strong>increase air circulation</strong> and reduce humidity around the crop canopy.</div>
+      </div>
+    </div>
+
+    <div class="section-title">Nearest agro-shops stocking Mancozeb</div>
+    <div class="shop-card">
+      <div>
+        <div class="shop-name">Jide Agrovet Store</div>
+        <div class="shop-dist">1.2 km away · Open now</div>
+      </div>
+      <div class="shop-nav">Get directions →</div>
+    </div>
+    <div class="shop-card">
+      <div>
+        <div class="shop-name">Farmgate Inputs Ltd.</div>
+        <div class="shop-dist">3.5 km away · Open now</div>
+      </div>
+      <div class="shop-nav">Get directions →</div>
+    </div>
+
+    <div style="margin-top:1rem;">
+      <button class="voice-btn">🔊 Read advice aloud (Yoruba / Igbo / Hausa)</button>
+      <button class="expert-btn" onclick="sendPrompt('Explain more about Northern Leaf Blight in maize and how to prevent it next season')">📞 Ask an expert about this ↗</button>
+    </div>
+  </div>
+
+  <!-- SOIL SCREEN (stub) -->
+  <div class="screen" id="screen-soil">
+    <button class="back-btn" onclick="showScreen('screen-home')">← Back</button>
+    <div class="screen-title">Soil health check</div>
+    <div class="screen-desc">Connect your IoT soil sensor via Bluetooth, or enter your soil test values manually.</div>
+    <div style="background:var(--color-background-secondary); border-radius:var(--border-radius-lg); padding:1.25rem; text-align:center; margin-bottom:1rem;">
+      <div style="font-size:32px; margin-bottom:8px;">📡</div>
+      <div style="font-size:14px; font-weight:500; color:var(--color-text-primary); margin-bottom:4px;">No sensor connected</div>
+      <div style="font-size:12px; color:var(--color-text-secondary);">Pair an ESP32 / Arduino soil sensor via Bluetooth to get real-time NPK readings.</div>
+    </div>
+    <button class="diagnose-btn" style="margin-bottom:8px;" onclick="sendPrompt('How do I build a low-cost NPK soil sensor using Arduino or ESP32 for AgroDoc?')">Learn how to build a sensor ↗</button>
+    <button class="expert-btn" onclick="showScreen('screen-home')">Enter values manually instead</button>
+  </div>
+
+  <!-- MARKET SCREEN (stub) -->
+  <div class="screen" id="screen-market">
+    <button class="back-btn" onclick="showScreen('screen-home')">← Back</button>
+    <div class="screen-title">Nearby agro-shops</div>
+    <div class="screen-desc">Shops within 10km stocking recommended inputs. Tap any shop to see products and get directions.</div>
+    <div class="shop-card" style="margin-bottom:8px;">
+      <div><div class="shop-name">Jide Agrovet Store</div><div class="shop-dist">1.2 km · Wuse, Abuja</div></div>
+      <div class="shop-nav">View →</div>
+    </div>
+    <div class="shop-card" style="margin-bottom:8px;">
+      <div><div class="shop-name">Farmgate Inputs Ltd.</div><div class="shop-dist">3.5 km · Garki, Abuja</div></div>
+      <div class="shop-nav">View →</div>
+    </div>
+    <div class="shop-card" style="margin-bottom:8px;">
+      <div><div class="shop-name">Green Thumb Supplies</div><div class="shop-dist">5.1 km · Gwagwalada</div></div>
+      <div class="shop-nav">View →</div>
+    </div>
+    <button class="diagnose-btn" style="margin-top:0.75rem;" onclick="sendPrompt('How should AgroDoc onboard local agro-dealers into the marketplace?')">How to onboard dealers ↗</button>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="showScreen('screen-home')">
+      <div class="nav-ico">🏠</div><div class="nav-label">Home</div>
+    </div>
+    <div class="nav-item" onclick="showScreen('screen-scan')">
+      <div class="nav-ico">🔬</div><div class="nav-label">Diagnose</div>
+    </div>
+    <div class="nav-item" onclick="showScreen('screen-soil')">
+      <div class="nav-ico">🌱</div><div class="nav-label">Soil</div>
+    </div>
+    <div class="nav-item" onclick="showScreen('screen-market')">
+      <div class="nav-ico">🛒</div><div class="nav-label">Shop</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function selectCrop(el) {
+  document.querySelectorAll('.crop-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function toggleSymptom(el) {
+  el.classList.toggle('checked');
+  const box = el.querySelector('.chk-box');
+  box.textContent = el.classList.contains('checked') ? '✓' : '';
+}
+function simulateScan() {
+  runDiagnosis();
+}
+function runDiagnosis() {
+  showScreen('screen-loading');
+  setTimeout(() => showScreen('screen-results'), 2200);
+}
+</script>
